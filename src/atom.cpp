@@ -737,22 +737,11 @@ int Atom::count_words(const char *line)
   int n = strlen(line) + 1;
   char *copy;
   memory->create(copy,n,"atom:copy");
-  strcpy(copy,line);
 
-  char *ptr;
-  if ((ptr = strchr(copy,'#'))) *ptr = '\0';
-
-  Tokenizer tok(copy);
-  // FIXME can be refactored to call the other overload
-  if (tok.next(" \t\n\r\f") == NULL) {
-    memory->destroy(copy);
-    return 0;
-  }
-  n = 1;
-  while (tok.next(" \t\n\r\f")) n++;
+  int count = count_words(line, copy);
 
   memory->destroy(copy);
-  return n;
+  return count;
 }
 
 /* ----------------------------------------------------------------------
@@ -768,15 +757,10 @@ int Atom::count_words(const char *line, char *copy)
   if ((ptr = strchr(copy,'#'))) *ptr = '\0';
 
   Tokenizer tok(copy);
-  // FIXME can be simplified
-  if (tok.next(" \t\n\r\f") == NULL) {
-    memory->destroy(copy); // FIXME seems incorrect?
-    return 0;
-  }
-  int n = 1;
-  while (tok.next(" \t\n\r\f")) n++;
+  int count = 0;
+  while (tok.next(" \t\n\r\f")) count++;
 
-  return n;
+  return count;
 }
 
 /* ----------------------------------------------------------------------
