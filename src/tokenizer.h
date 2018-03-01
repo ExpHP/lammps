@@ -33,6 +33,15 @@ class Tokenizer {
 public:
     Tokenizer(char* str);
 
+    // Equivalent to tokenizing the empty string.
+    Tokenizer();
+
+    // Set a new string to be tokenized.
+    // Useful if there are multiple strings to be tokenized,
+    // as this lets you reduce the number of Tokenizers you
+    // need to invent names for.
+    void reset(char* str);
+
     // Find the next non-empty string of characters not
     // contained in `delim`.  This will modify the string
     // to insert a NUL byte.

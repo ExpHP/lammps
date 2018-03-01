@@ -36,6 +36,11 @@ char* Tokenizer::next(const char* delim) {
     }
 }
 
+void Tokenizer::reset(char* str) {
+    cursor = str;
+    first = true;
+}
+
 // Factored out to allow writing `int count(const char* delim) const`.
 // Returns either:
 // - If one or more tokens remain:
