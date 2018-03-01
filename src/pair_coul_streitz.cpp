@@ -32,6 +32,7 @@
 #include "math_const.h"
 #include "memory.h"
 #include "error.h"
+#include "tokenizer.h"
 
 using namespace LAMMPS_NS;
 using namespace MathConst;
@@ -314,8 +315,8 @@ void PairCoulStreitz::read_file(char *file)
     // words = ptrs to all words in line
 
     nwords = 0;
-    words[nwords++] = strtok(line," \t\n\r\f");
-    while ((words[nwords++] = strtok(NULL," \t\n\r\f"))) continue;
+    Tokenizer tok(line);
+    while ((words[nwords++] = tok.next(" \t\n\r\f"))) continue;
 
     // ielement = 1st args
 

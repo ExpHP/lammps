@@ -50,6 +50,7 @@
 #include "accelerator_kokkos.h"
 #include "error.h"
 #include "memory.h"
+#include "tokenizer.h"
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -1136,13 +1137,14 @@ void Input::partition()
   int ilo,ihi;
   force->bounds(FLERR,arg[1],universe->nworlds,ilo,ihi);
 
-  // copy original line to copy, since will use strtok() on it
+  // copy original line to copy, since will use Tokenizer on it
   // ptr = start of 4th word
 
   strcpy(copy,line);
-  char *ptr = strtok(copy," \t\n\r\f");
-  ptr = strtok(NULL," \t\n\r\f");
-  ptr = strtok(NULL," \t\n\r\f");
+  Tokenizer tok(copy);
+  tok.next(" \t\n\r\f");
+  tok.next(" \t\n\r\f");
+  char *ptr = tok.next(" \t\n\r\f");
   ptr += strlen(ptr) + 1;
   ptr += strspn(ptr," \t\n\r\f");
 

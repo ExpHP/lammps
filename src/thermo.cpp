@@ -47,6 +47,7 @@
 #include "memory.h"
 #include "error.h"
 #include "universe.h"
+#include "tokenizer.h"
 
 #include "math_const.h"
 
@@ -235,14 +236,14 @@ void Thermo::init()
     strcpy(format_line,format_line_user);
   }
 
+  Tokenizer tok(format_line);
   char *ptr,*format_line_ptr;
   for (i = 0; i < nfield; i++) {
     format[i][0] = '\0';
     if (lineflag == MULTILINE && i % 3 == 0) strcat(format[i],"\n");
 
     if (format_line) {
-      if (i == 0) format_line_ptr = strtok(format_line," \0");
-      else format_line_ptr = strtok(NULL," \0");
+      format_line_ptr = tok.next(" ");
     }
 
     if (format_column_user[i]) ptr = format_column_user[i];
@@ -725,8 +726,8 @@ void Thermo::parse_fields(char *str)
 
   // customize a new keyword by adding to if statement
 
-  char *word = strtok(str," \0");
-  while (word) {
+  Tokenizer tok(str);
+  while (char *word = tok.next(" ")) {
 
     if (strcmp(word,"step") == 0) {
       addfield("Step",&Thermo::compute_step,BIGINT);
@@ -997,8 +998,6 @@ void Thermo::parse_fields(char *str)
       delete [] id;
 
     } else error->all(FLERR,"Unknown keyword in thermo_style custom command");
-
-    word = strtok(NULL," \0");
   }
 }
 

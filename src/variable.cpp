@@ -38,6 +38,7 @@
 #include "memory.h"
 #include "info.h"
 #include "error.h"
+#include "tokenizer.h"
 
 using namespace LAMMPS_NS;
 using namespace MathConst;
@@ -4964,7 +4965,8 @@ int VarReader::read_scalar(char *str)
       if (n == 0) break;                                 // end of file
       str[n-1] = '\0';                                   // strip newline
       if ((ptr = strchr(str,'#'))) *ptr = '\0';          // strip comment
-      if (strtok(str," \t\n\r\f") == NULL) continue;     // skip if blank
+      if (Tokenizer { str }.next(" \t\n\r\f") == NULL)   // skip if blank
+        continue;
       n = strlen(str) + 1;
       break;
     }
@@ -5007,7 +5009,8 @@ int VarReader::read_peratom()
       if (n == 0) break;                                 // end of file
       str[n-1] = '\0';                                   // strip newline
       if ((ptr = strchr(str,'#'))) *ptr = '\0';          // strip comment
-      if (strtok(str," \t\n\r\f") == NULL) continue;     // skip if blank
+      if (Tokenizer { str }.next(" \t\n\r\f") == NULL)   // skip if blank
+        continue;
       n = strlen(str) + 1;
       break;
     }

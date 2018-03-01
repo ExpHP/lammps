@@ -26,6 +26,7 @@
 #include "neigh_list.h"
 #include "memory.h"
 #include "error.h"
+#include "tokenizer.h"
 
 using namespace LAMMPS_NS;
 
@@ -373,7 +374,7 @@ void PairTable::read_table(Table *tb, char *file, char *keyword)
       error->one(FLERR,"Did not find keyword in table file");
     if (strspn(line," \t\n\r") == strlen(line)) continue;  // blank line
     if (line[0] == '#') continue;                          // comment
-    char *word = strtok(line," \t\n\r");
+    char *word = Tokenizer { line }.next(" \t\n\r");
     if (strcmp(word,keyword) == 0) break;           // matching keyword
     fgets(line,MAXLINE,fp);                         // no match, skip section
     param_extract(tb,line);
@@ -571,31 +572,30 @@ void PairTable::param_extract(Table *tb, char *line)
   tb->rflag = NONE;
   tb->fpflag = 0;
 
-  char *word = strtok(line," \t\n\r\f");
-  while (word) {
+  Tokenizer tok(line);
+  while (char *word = tok.next(" \t\n\r\f")) {
     if (strcmp(word,"N") == 0) {
-      word = strtok(NULL," \t\n\r\f");
+      word = tok.next(" \t\n\r\f");
       tb->ninput = atoi(word);
     } else if (strcmp(word,"R") == 0 || strcmp(word,"RSQ") == 0 ||
                strcmp(word,"BITMAP") == 0) {
       if (strcmp(word,"R") == 0) tb->rflag = RLINEAR;
       else if (strcmp(word,"RSQ") == 0) tb->rflag = RSQ;
       else if (strcmp(word,"BITMAP") == 0) tb->rflag = BMP;
-      word = strtok(NULL," \t\n\r\f");
+      word = tok.next(" \t\n\r\f");
       tb->rlo = atof(word);
-      word = strtok(NULL," \t\n\r\f");
+      word = tok.next(" \t\n\r\f");
       tb->rhi = atof(word);
     } else if (strcmp(word,"FPRIME") == 0) {
       tb->fpflag = 1;
-      word = strtok(NULL," \t\n\r\f");
+      word = tok.next(" \t\n\r\f");
       tb->fplo = atof(word);
-      word = strtok(NULL," \t\n\r\f");
+      word = tok.next(" \t\n\r\f");
       tb->fphi = atof(word);
     } else {
       printf("WORD: %s\n",word);
       error->one(FLERR,"Invalid keyword in pair table parameters");
     }
-    word = strtok(NULL," \t\n\r\f");
   }
 
   if (tb->ninput == 0) error->one(FLERR,"Pair table parameters did not set N");

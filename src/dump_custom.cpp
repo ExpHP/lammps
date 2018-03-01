@@ -29,6 +29,7 @@
 #include "fix_store.h"
 #include "memory.h"
 #include "error.h"
+#include "tokenizer.h"
 
 using namespace LAMMPS_NS;
 
@@ -278,9 +279,9 @@ void DumpCustom::init_style()
   // lo priority = line, medium priority = int/float, hi priority = column
 
   char *ptr;
+  Tokenizer tok(format);
   for (int i = 0; i < size_one; i++) {
-    if (i == 0) ptr = strtok(format," \0");
-    else ptr = strtok(NULL," \0");
+    ptr = tok.next(" ");
     if (ptr == NULL) error->all(FLERR,"Dump_modify format line is too short");
     delete [] vformat[i];
 
