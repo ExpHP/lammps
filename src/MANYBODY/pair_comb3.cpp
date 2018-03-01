@@ -33,6 +33,7 @@
 #include "math_const.h"
 #include "memory.h"
 #include "error.h"
+#include "tokenizer.h"
 
 using namespace LAMMPS_NS;
 using namespace MathConst;
@@ -318,6 +319,7 @@ void PairComb3::read_lib()
 
   // open libraray file on proc 0
 
+  Tokenizer tok(NULL);
   if (comm->me == 0) {
     FILE *fp = force->open_potential("lib.comb3");
     if (fp == NULL) {
@@ -330,8 +332,8 @@ void PairComb3::read_lib()
     fgets(s,maxlib,fp);
     fgets(s,maxlib,fp);
     nwords = 0;
-    words[nwords++] = strtok(s," \t\n\r\f");
-    while ((words[nwords++] = strtok(NULL," \t\n\r\f")))continue;
+    tok.reset(s);
+    while ((words[nwords++] = tok.next(" \t\n\r\f")))continue;
     ccutoff[0] = atof(words[0]);
     ccutoff[1] = atof(words[1]);
     ccutoff[2] = atof(words[2]);
@@ -341,8 +343,8 @@ void PairComb3::read_lib()
 
     fgets(s,maxlib,fp);
     nwords = 0;
-    words[nwords++] = strtok(s," \t\n\r\f");
-    while ((words[nwords++] = strtok(NULL," \t\n\r\f")))continue;
+    tok.reset(s);
+    while ((words[nwords++] = tok.next(" \t\n\r\f")))continue;
     ch_a[0] = atof(words[0]);
     ch_a[1] = atof(words[1]);
     ch_a[2] = atof(words[2]);
@@ -353,24 +355,24 @@ void PairComb3::read_lib()
 
     fgets(s,maxlib,fp);
     nwords = 0;
-    words[nwords++] = strtok(s," \t\n\r\f");
-    while ((words[nwords++] = strtok(NULL," \t\n\r\f")))continue;
+    tok.reset(s);
+    while ((words[nwords++] = tok.next(" \t\n\r\f")))continue;
     nsplpcn = atoi(words[0]);
     nsplrad = atoi(words[1]);
     nspltor = atoi(words[2]);
 
     fgets(s,maxlib,fp);
     nwords = 0;
-    words[nwords++] = strtok(s," \t\n\r\f");
-    while ((words[nwords++] = strtok(NULL," \t\n\r\f")))continue;
+    tok.reset(s);
+    while ((words[nwords++] = tok.next(" \t\n\r\f")))continue;
     maxx = atoi(words[0]);
     maxy = atoi(words[1]);
     maxz = atoi(words[2]);
 
     fgets(s,maxlib,fp);
     nwords = 0;
-    words[nwords++] = strtok(s," \t\n\r\f");
-    while ((words[nwords++] = strtok(NULL," \t\n\r\f")))continue;
+    tok.reset(s);
+    while ((words[nwords++] = tok.next(" \t\n\r\f")))continue;
     maxxc = atoi(words[0]);
     maxyc = atoi(words[1]);
     maxconj = atoi(words[2]);
@@ -378,8 +380,8 @@ void PairComb3::read_lib()
     for (l=0; l<nsplpcn; l++) {
       fgets(s,maxlib,fp);
       nwords = 0;
-      words[nwords++] = strtok(s," \t\n\r\f");
-      while ((words[nwords++] = strtok(NULL," \t\n\r\f")))continue;
+      tok.reset(s);
+      while ((words[nwords++] = tok.next(" \t\n\r\f")))continue;
       maxxcn[l] = atoi(words[1]);
       vmaxxcn[l] = atof(words[2]);
       dvmaxxcn[l] = atof(words[3]);
@@ -387,15 +389,15 @@ void PairComb3::read_lib()
 
     fgets(s,maxlib,fp);
     nwords = 0;
-    words[nwords++] = strtok(s," \t\n\r\f");
-    while ((words[nwords++] = strtok(NULL," \t\n\r\f")))continue;
+    tok.reset(s);
+    while ((words[nwords++] = tok.next(" \t\n\r\f")))continue;
     ntab = atoi(words[0]);
 
     for (i=0; i<ntab+1; i++){
       fgets(s,maxlib,fp);
       nwords = 0;
-      words[nwords++] = strtok(s," \t\n\r\f");
-      while ((words[nwords++] = strtok(NULL," \t\n\r\f")))continue;
+      tok.reset(s);
+      while ((words[nwords++] = tok.next(" \t\n\r\f")))continue;
       pang[i]    = atof(words[1]);
       dpang[i]   = atof(words[2]);
       ddpang[i]  = atof(words[3]);
@@ -407,8 +409,8 @@ void PairComb3::read_lib()
           for (k=0; k<maxz+1; k++) {
             fgets(s,maxlib,fp);
             nwords = 0;
-            words[nwords++] = strtok(s," \t\n\r\f");
-            while ((words[nwords++] = strtok(NULL," \t\n\r\f")))continue;
+            tok.reset(s);
+            while ((words[nwords++] = tok.next(" \t\n\r\f")))continue;
             ll = atoi(words[0])-1;
             ii = atoi(words[1]);
             jj = atoi(words[2]);
@@ -425,8 +427,8 @@ void PairComb3::read_lib()
           for (k=0; k<maxz; k++) {
             fgets(s,maxlib,fp);
             nwords = 0;
-            words[nwords++] = strtok(s," \t\n\r\f");
-            while ((words[nwords++] = strtok(NULL," \t\n\r\f")))continue;
+            tok.reset(s);
+            while ((words[nwords++] = tok.next(" \t\n\r\f")))continue;
            ll = atoi(words[0])-1;
            ii = atoi(words[1]);
            jj = atoi(words[2]);
@@ -434,8 +436,8 @@ void PairComb3::read_lib()
            for(iii=0; iii<2; iii++) {
              fgets(s,maxlib,fp);
              nwords = 0;
-             words[nwords++] = strtok(s," \t\n\r\f");
-             while ((words[nwords++] = strtok(NULL," \t\n\r\f")))continue;
+             tok.reset(s);
+             while ((words[nwords++] = tok.next(" \t\n\r\f")))continue;
              for(m=0; m<32 ; m++) {
                mm=iii*32+m;
                pcn_cubs[ll][ii][jj][kk][mm] = atof(words[m]);
@@ -449,8 +451,8 @@ void PairComb3::read_lib()
           for (k=0; k<maxconj; k++) {
             fgets(s,maxlib,fp);
             nwords = 0;
-            words[nwords++] = strtok(s," \t\n\r\f");
-            while ((words[nwords++] = strtok(NULL," \t\n\r\f")))continue;
+            tok.reset(s);
+            while ((words[nwords++] = tok.next(" \t\n\r\f")))continue;
             ll = atoi(words[0])-1;
             ii = atoi(words[1]);
             jj = atoi(words[2]);
@@ -467,8 +469,8 @@ void PairComb3::read_lib()
           for (k=0; k<maxconj-1; k++) {
             fgets(s,maxlib,fp);
             nwords = 0;
-            words[nwords++] = strtok(s," \t\n\r\f");
-            while ((words[nwords++] = strtok(NULL," \t\n\r\f")))continue;
+            tok.reset(s);
+            while ((words[nwords++] = tok.next(" \t\n\r\f")))continue;
             ll = atoi(words[0])-1;
             ii = atoi(words[1]);
             jj = atoi(words[2]);
@@ -476,8 +478,8 @@ void PairComb3::read_lib()
             for (iii=0; iii<2; iii++) {
               fgets(s,maxlib,fp);
               nwords = 0;
-              words[nwords++] = strtok(s," \t\n\r\f");
-              while ((words[nwords++] = strtok(NULL," \t\n\r\f")))continue;
+              tok.reset(s);
+              while ((words[nwords++] = tok.next(" \t\n\r\f")))continue;
               for(m=0; m<32 ; m++){
                 mm=iii*32+m;
                 rad_spl[ll][ii][jj][kk][mm] = atof(words[m]);
@@ -491,8 +493,8 @@ void PairComb3::read_lib()
           for (k=0; k<maxconj; k++) {
             fgets(s,maxlib,fp);
             nwords = 0;
-            words[nwords++] = strtok(s," \t\n\r\f");
-            while ((words[nwords++] = strtok(NULL," \t\n\r\f")))continue;
+            tok.reset(s);
+            while ((words[nwords++] = tok.next(" \t\n\r\f")))continue;
             ll = atoi(words[0])-1;
             ii = atoi(words[1]);
             jj = atoi(words[2]);
@@ -509,8 +511,8 @@ void PairComb3::read_lib()
           for (k=0; k<maxconj-1; k++) {
             fgets(s,maxlib,fp);
             nwords = 0;
-            words[nwords++] = strtok(s," \t\n\r\f");
-            while ((words[nwords++] = strtok(NULL," \t\n\r\f")))continue;
+            tok.reset(s);
+            while ((words[nwords++] = tok.next(" \t\n\r\f")))continue;
             ll = atoi(words[0])-1;
             ii = atoi(words[1]);
             jj = atoi(words[2]);
@@ -518,8 +520,8 @@ void PairComb3::read_lib()
             for(iii=0; iii<2; iii++) {
               fgets(s,maxlib,fp);
               nwords = 0;
-              words[nwords++] = strtok(s," \t\n\r\f");
-              while ((words[nwords++] = strtok(NULL," \t\n\r\f")))continue;
+              tok.reset(s);
+              while ((words[nwords++] = tok.next(" \t\n\r\f")))continue;
               for (m=0; m<32 ; m++){
                 mm=iii*32+m;
                 tor_spl[ll][ii][jj][kk][mm] = atof(words[m]);
@@ -660,13 +662,13 @@ void PairComb3::read_file(char *file)
     }
     if (nwords != params_per_line){
       error->all(FLERR,"Incorrect format in COMB3 potential file");
-}
+    }
     // words = ptrs to all words in line
 
     nwords = 0;
-    words[nwords++] = strtok(line," \t\n\r\f");
+    Tokenizer tok(line);
     while ((nwords <= params_per_line)
-           && (words[nwords++] = strtok(NULL," \t\n\r\f"))) {
+           && (words[nwords++] = tok.next(" \t\n\r\f"))) {
       continue;
     }
 
