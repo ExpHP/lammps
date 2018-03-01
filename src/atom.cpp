@@ -39,6 +39,7 @@
 #include "math_const.h"
 #include "memory.h"
 #include "error.h"
+#include "tokenizer.h"
 
 #ifdef LMP_USER_INTEL
 #include "neigh_request.h"
@@ -727,7 +728,7 @@ int Atom::tag_consecutive()
 
 /* ----------------------------------------------------------------------
    count and return words in a single line
-   make copy of line before using strtok so as not to change line
+   make copy of line before using Tokenizer so as not to change line
    trim anything from '#' onward
 ------------------------------------------------------------------------- */
 
@@ -741,12 +742,14 @@ int Atom::count_words(const char *line)
   char *ptr;
   if ((ptr = strchr(copy,'#'))) *ptr = '\0';
 
-  if (strtok(copy," \t\n\r\f") == NULL) {
+  Tokenizer tok(copy);
+  // FIXME can be refactored to call the other overload
+  if (tok.next(" \t\n\r\f") == NULL) {
     memory->destroy(copy);
     return 0;
   }
   n = 1;
-  while (strtok(NULL," \t\n\r\f")) n++;
+  while (tok.next(" \t\n\r\f")) n++;
 
   memory->destroy(copy);
   return n;
@@ -765,12 +768,14 @@ int Atom::count_words(const char *line, char *copy)
   char *ptr;
   if ((ptr = strchr(copy,'#'))) *ptr = '\0';
 
-  if (strtok(copy," \t\n\r\f") == NULL) {
-    memory->destroy(copy);
+  Tokenizer tok(copy);
+  // FIXME can be simplified
+  if (tok.next(" \t\n\r\f") == NULL) {
+    memory->destroy(copy); // FIXME seems incorrect?
     return 0;
   }
   int n = 1;
-  while (strtok(NULL," \t\n\r\f")) n++;
+  while (tok.next(" \t\n\r\f")) n++;
 
   return n;
 }
@@ -1383,7 +1388,7 @@ void Atom::data_bodies(int n, char *buf, AtomVecBody *avec_body,
 
     ninteger = force->inumeric(FLERR,strtok(NULL," \t\n\r\f"));
     ndouble = force->inumeric(FLERR,strtok(NULL," \t\n\r\f"));
-    
+
     if ((m = map(tagdata)) >= 0) {
       if (ninteger > maxint) {
 	delete [] ivalues;
@@ -1395,14 +1400,14 @@ void Atom::data_bodies(int n, char *buf, AtomVecBody *avec_body,
 	maxdouble = ndouble;
 	dvalues = new double[maxdouble];
       }
-      
+
       for (j = 0; j < ninteger; j++)
 	ivalues[j] = force->inumeric(FLERR,strtok(NULL," \t\n\r\f"));
       for (j = 0; j < ndouble; j++)
 	dvalues[j] = force->numeric(FLERR,strtok(NULL," \t\n\r\f"));
-      
+
       avec_body->data_body(m,ninteger,ndouble,ivalues,dvalues);
-      
+
     } else {
       nvalues = ninteger + ndouble;    // number of values to skip
       for (j = 0; j < nvalues; j++)
@@ -1539,7 +1544,7 @@ void Atom::check_mass(const char *file, int line)
   if (mass == NULL) return;
   if (rmass_flag) return;
   for (int itype = 1; itype <= ntypes; itype++)
-    if (mass_setflag[itype] == 0) 
+    if (mass_setflag[itype] == 0)
       error->all(file,line,"Not all per-type masses are set");
 }
 
@@ -1675,7 +1680,7 @@ void Atom::add_molecule_atom(Molecule *onemol, int iatom,
 				 onemol->ibodyparams,onemol->dbodyparams);
     onemol->avec_body->set_quat(ilocal,onemol->quat_external);
   }
-  
+
   if (molecular != 1) return;
 
   // add bond topology info
