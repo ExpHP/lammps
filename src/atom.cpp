@@ -757,7 +757,6 @@ int Atom::count_words(const char *line)
 
 /* ----------------------------------------------------------------------
    count and return words in a single line using provided copy buf
-   make copy of line before using strtok so as not to change line
    trim anything from '#' onward
 ------------------------------------------------------------------------- */
 
@@ -916,12 +915,11 @@ void Atom::data_atoms(int n, char *buf, tagint id_offset, int type_offset,
 
   for (int i = 0; i < n; i++) {
     next = strchr(buf,'\n');
+    // FIXME: Should do `*next = '\0'` here?
 
-    values[0] = strtok(buf," \t\n\r\f");
-    if (values[0] == NULL)
-      error->all(FLERR,"Incorrect atom format in data file");
-    for (m = 1; m < nwords; m++) {
-      values[m] = strtok(NULL," \t\n\r\f");
+    Tokenizer tok(buf);
+    for (m = 0; m < nwords; m++) {
+      values[m] = tok.next(" \t\n\r\f");
       if (values[m] == NULL)
         error->all(FLERR,"Incorrect atom format in data file");
     }
@@ -994,10 +992,11 @@ void Atom::data_vels(int n, char *buf, tagint id_offset)
 
   for (int i = 0; i < n; i++) {
     next = strchr(buf,'\n');
+    // FIXME: Should do `*next = NULL` here?
 
-    values[0] = strtok(buf," \t\n\r\f");
-    for (j = 1; j < nwords; j++)
-      values[j] = strtok(NULL," \t\n\r\f");
+    Tokenizer tok(buf);
+    for (j = 0; j < nwords; j++)
+      values[j] = tok.next(" \t\n\r\f");
 
     tagdata = ATOTAGINT(values[0]) + id_offset;
     if (tagdata <= 0 || tagdata > map_tag_max)
@@ -1338,10 +1337,11 @@ void Atom::data_bonus(int n, char *buf, AtomVec *avec_bonus, tagint id_offset)
 
   for (int i = 0; i < n; i++) {
     next = strchr(buf,'\n');
+    // FIXME: Should do `*next = '\0'` here?
 
-    values[0] = strtok(buf," \t\n\r\f");
-    for (j = 1; j < nwords; j++)
-      values[j] = strtok(NULL," \t\n\r\f");
+    Tokenizer tok(buf);
+    for (j = 0; j < nwords; j++)
+      values[j] = tok.next(" \t\n\r\f");
 
     tagdata = ATOTAGINT(values[0]) + id_offset;
     if (tagdata <= 0 || tagdata > map_tag_max)
@@ -1379,15 +1379,16 @@ void Atom::data_bodies(int n, char *buf, AtomVecBody *avec_body,
   // if I own atom tag, tokenize lines into ivalues/dvalues, call data_body()
   // else skip values
 
+  Tokenizer tok(buf);
   for (int i = 0; i < n; i++) {
-    if (i == 0) tagdata = ATOTAGINT(strtok(buf," \t\n\r\f")) + id_offset;
-    else tagdata = ATOTAGINT(strtok(NULL," \t\n\r\f")) + id_offset;
+    if (i == 0) tagdata = ATOTAGINT(tok.next(" \t\n\r\f")) + id_offset;
+    else tagdata = ATOTAGINT(tok.next(" \t\n\r\f")) + id_offset;
 
     if (tagdata <= 0 || tagdata > map_tag_max)
       error->one(FLERR,"Invalid atom ID in Bodies section of data file");
 
-    ninteger = force->inumeric(FLERR,strtok(NULL," \t\n\r\f"));
-    ndouble = force->inumeric(FLERR,strtok(NULL," \t\n\r\f"));
+    ninteger = force->inumeric(FLERR,tok.next(" \t\n\r\f"));
+    ndouble = force->inumeric(FLERR,tok.next(" \t\n\r\f"));
 
     if ((m = map(tagdata)) >= 0) {
       if (ninteger > maxint) {
@@ -1402,16 +1403,16 @@ void Atom::data_bodies(int n, char *buf, AtomVecBody *avec_body,
       }
 
       for (j = 0; j < ninteger; j++)
-	ivalues[j] = force->inumeric(FLERR,strtok(NULL," \t\n\r\f"));
+	ivalues[j] = force->inumeric(FLERR,tok.next(" \t\n\r\f"));
       for (j = 0; j < ndouble; j++)
-	dvalues[j] = force->numeric(FLERR,strtok(NULL," \t\n\r\f"));
+	dvalues[j] = force->numeric(FLERR,tok.next(" \t\n\r\f"));
 
       avec_body->data_body(m,ninteger,ndouble,ivalues,dvalues);
 
     } else {
       nvalues = ninteger + ndouble;    // number of values to skip
       for (j = 0; j < nvalues; j++)
-	strtok(NULL," \t\n\r\f");
+	tok.next(" \t\n\r\f");
     }
   }
 
